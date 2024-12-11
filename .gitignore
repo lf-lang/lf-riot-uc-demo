@@ -1,0 +1,14 @@
+src-gen
+bin
+build
+include
+
+scripts/__pycache__
+build/
+
+.venv/
+.vscode/
+**/build
+**/src-gen/
+**/include/
+
