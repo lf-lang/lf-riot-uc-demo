@@ -2,14 +2,22 @@
 
 This is a template for Lingua Franca applications targeting RIOT OS.
 
-## Build HelloWorld
+## Build
 
 ```bash
-./run/build.sh -m HelloWorld -b native
+make all
 ```
 
-## Flash HelloWorld
+## Flash
 
 ```bash
-./run/flash.sh -m HelloWorld -b native
+make flash
+```
+
+## Open Terminal
+
+This allows to run CLI commands if a CLI is enabled or seeing debug logs etc.
+
+```bash
+make term
 ```
