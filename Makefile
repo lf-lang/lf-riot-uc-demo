@@ -5,6 +5,11 @@ LF_MAIN ?= HelloWorld
 # CFLAGS += -DNETWORK_CHANNEL_TCP_POSIX
 # CFLAGS += -DNETWORK_CHANNEL_COAP_RIOT
 
+# Execute the LF compiler if build target is "all"
+ifeq ($(MAKECMDGOALS),all)
+  _ :=  $(shell $(REACTOR_UC_PATH)/lfc/bin/lfc-dev src/$(LF_MAIN).lf)
+endif
+
 # ---- RIOT specific configuration ----
 # If no BOARD is found in the environment, use this default:
 BOARD ?= native
@@ -17,4 +22,4 @@ DEVELHELP ?= 1
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
-include $(REACTOR_UC_PATH)/make/riot/riot.mk
+include $(REACTOR_UC_PATH)/make/riot/riot-lfc.mk
