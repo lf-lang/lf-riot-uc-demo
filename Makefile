@@ -5,6 +5,9 @@ LF_MAIN ?= HelloWorld
 # CFLAGS += -DNETWORK_CHANNEL_TCP_POSIX
 # CFLAGS += -DNETWORK_CHANNEL_COAP_RIOT
 
+# Make default debug output report only info and errors.
+CFLAGS += -DLF_LOG_LEVEL_ALL=LF_LOG_LEVEL_ERR
+
 # Execute the LF compiler if build target is "all"
 ifeq ($(MAKECMDGOALS),all)
   _ :=  $(shell $(REACTOR_UC_PATH)/lfc/bin/lfc-dev src/$(LF_MAIN).lf)

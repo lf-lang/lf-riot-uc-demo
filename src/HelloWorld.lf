@@ -15,10 +15,12 @@ main reactor {
 
     reaction(t1) {=
         LED0_TOGGLE;
+        printf("Toggle LED0\n");
     =}
 
     reaction(t2) {=
         LED1_TOGGLE;
+        printf("Toggle LED1\n");
     =}
 }
 
