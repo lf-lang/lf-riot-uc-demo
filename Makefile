@@ -18,7 +18,7 @@ endif
 RIOTBASE = $(CURDIR)/RIOT
 
 # If no BOARD is found in the environment, use this default:
-BOARD ?= native
+BOARD ?= nucleo-f446re
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
