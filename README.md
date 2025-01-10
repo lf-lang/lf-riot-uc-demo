@@ -19,7 +19,8 @@ Your system must have the following software packages (you likely have at least 
 
 ```bash
 sudo apt update
-sudo apt install git openjdk-17-jdk openjdk-17-jre nix cmake
+sudo apt install git openjdk-17-jdk openjdk-17-jre nix cmake build-essential python3
+sudo pip install pyserial
 ```
 
 **Installation on macOS**
@@ -45,13 +46,14 @@ git clone git@github.com:lf-lang/reactor-uc.git --recurse-submodules
 This README only covers arm-based boards. For boards having a CPU with different architecture, please check which cross-compilers are available for your operating system.
 
 A quick way to check if you already have an arm cross-compiler installed:
-```bash which arm-none-eabi-gcc
+```bash 
+which arm-none-eabi-gcc
 ```
 
 ## 3.1. Debian & Ubuntu
 
 ```bash
-sudo apt install gcc-arm-none-eabi openjdk-17-jdk-headless build-essential python3 sudo pip install pyserial
+sudo apt install gcc-arm-none-eabi 
 ```
 
 ## 3.2. Nix
