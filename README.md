@@ -1,8 +1,7 @@
+reactor-uc RIOT-OS Template
+======================
+
 This is a template for Lingua Franca applications targeting RIOT OS on embedded boards. It is currently configured to support ARM-based boards.
-
-Outline of these setup instructions:
-
-[toc]
 
 If you have trouble, please refer to the platform-specific hints towards the end of these instructions.
 
