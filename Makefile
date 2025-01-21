@@ -6,7 +6,7 @@ LF_MAIN ?= HelloWorld
 # CFLAGS += -DNETWORK_CHANNEL_COAP_RIOT
 
 # Make default debug output report only info and errors.
-CFLAGS += -DLF_LOG_LEVEL_ALL=LF_LOG_LEVEL_ERR
+CFLAGS += -DLF_LOG_LEVEL_ALL=LF_LOG_LEVEL_ERROR
 
 # Execute the LF compiler if build target is "all"
 ifeq ($(firstword $(MAKECMDGOALS)),all)
