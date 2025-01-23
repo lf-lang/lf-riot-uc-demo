@@ -1,53 +1,45 @@
-# Template project for LF applications based on RIOT OS
+## Demo of STM32 Using RIoT
 
-This is a template for Lingua Franca applications targeting RIOT OS.
+[RIoT documentation](https://doc.riot-os.org/index.html).
 
-## Getting started
+This repo is based on the [lf-riot-uc-template template repository](https://github.com/lf-lang/lf-riot-uc-template).
 
-1. Configure the name of the LF application you want to build inside the `Makefile` by specifying the `LF_MAIN` variable.
-2. Configure the board to flash in the `Makefile` by specifying the `BOARD` variable.
+### Boards used
 
-### Example
+This demo uses the following boards:
 
-```Makefile
-LF_MAIN ?= HelloWorld
-BOARD ?= native
-```
+* [STM32 Nucleo-F446RE microprocessor board](https://doc.riot-os.org/group__boards__nucleo-f446re.html)
+* [X-NUCLEO IKS4A1 sensor board](https://www.st.com/en/ecosystems/x-nucleo-iks4a1.html)
 
-## Build
+### Getting started
 
-```bash
-make all
-```
-
-or with parameters to override the `Makefile configuration
+Please follow the setup instructions in that [README file](https://github.com/lf-lang/lf-riot-uc-template/blob/main/README.md). Then:
 
 ```bash
-LF_MAIN=HelloWorld BOARD=native make all
+make BOARD=nucleo-f446re all
 ```
 
-## Flash
+(or use gmake on macOS).
+Connect your board and do:
 
 ```bash
-make flash
+make BOARD=nucleo-f446re flash
 ```
 
-or with parameters to override the `Makefile configuration
+With the HelloWorld program, the LED should start blinking.
+
+### Terminal output
 
 ```bash
-LF_MAIN=HelloWorld BOARD=native make flash
+make BOARD=nucleo-f446re term
 ```
 
-## Open Terminal
+(You should have done `pip install pyserial` for this to work.)
 
-This allows to run CLI commands if a CLI is enabled or seeing debug logs etc.
+### Debugging (not tested)
 
 ```bash
-make term
+gmake BOARD=nucleo-f446re debug
 ```
 
-or with parameters to override the `Makefile configuration
-
-```bash
-LF_MAIN=HelloWorld BOARD=native make term
-```
+(requires installing gdb-multiarch)

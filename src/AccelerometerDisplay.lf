@@ -1,0 +1,62 @@
+target uC
+
+preamble {=
+  #include "led.h"
+=}
+
+reactor Accelerometer {
+  preamble {=
+    #include "periph/i2c.h"
+
+    // LSM6DSL I2C Address
+    #define LSM6DSL_ADDR        0x6B
+    #define LSM6DSL_CTRL1_XL    0x10
+    #define LSM6DSL_OUTX_L_XL   0x28
+
+    // I2C Configuration
+    #define I2C_DEV_ID          I2C_DEV(0) // Use I2C device 0 (modify as needed)
+    #define I2C_SPEED           I2C_SPEED_NORMAL
+  =}
+  reaction(startup) {=
+    uint8_t config[2];
+    config[0] = LSM6DSL_CTRL1_XL;  // Register address
+    config[1] = 0x60;              // ODR_XL = 1.66 kHz, FS_XL = ±2g
+
+    // The following acquires exclusive access to the I2C bus.
+    // It blocks until the bus is available.
+    i2c_acquire(I2C_DEV_ID);
+
+    if (i2c_write_reg(I2C_DEV_ID, LSM6DSL_ADDR, config[0], config[1], 0) != 0) {
+        printf("Failed to configure LSM6DSL\n");
+        i2c_release(I2C_DEV_ID);
+        exit(1); // FIXME: request_stop() is missing.
+    }
+  =}
+
+  reaction(shutdown) {=
+    i2c_release(I2C_DEV_ID);
+  =}
+}
+
+main reactor {
+    timer t1(0, 1300msec)
+    timer t2(0, 2sec)
+    
+    reaction(startup) {=
+        LED0_ON;
+        LED1_ON;
+    =}
+
+    reaction(t1) {=
+        LED0_TOGGLE;
+        printf("Toggle LED0\n");
+    =}
+
+    reaction(t2) {=
+        LED1_TOGGLE;
+        printf("Toggle LED1\n");
+    =}
+
+    a = new Accelerometer();
+}
+

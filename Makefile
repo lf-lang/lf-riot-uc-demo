@@ -1,5 +1,5 @@
 # The name of the LF application inside "./src" to build/run/flash etc.
-LF_MAIN ?= HelloWorld
+LF_MAIN ?= AccelerometerDisplay
 
 # Enable reactor-uc features
 # CFLAGS += -DNETWORK_CHANNEL_TCP_POSIX
