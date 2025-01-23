@@ -27,6 +27,7 @@ sudo pip install pyserial
 ```bash
 brew install git cmake openjdk@17 make
 curl -L https://nixos.org/nix/install | sh
+pip install pyserial
 ```
 
 Note that `make` will be installed as `gmake` (see [macOS Hints](#macos-hints)), so all commands below should use `gmake` instead of `make`.
