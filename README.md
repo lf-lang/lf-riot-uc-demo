@@ -1,5 +1,12 @@
-reactor-uc RIOT-OS Template
-======================
+# reactor-uc RIOT-OS Template
+
+![RIOT OS Logo](https://www.riot-os.org/assets/img/riot-logo.png)
+
+- **Git:** https://github.com/riot-os/RIOT
+- **Supported Boards:** https://www.riot-os.org/boards.html
+- **Documentation:** https://doc.riot-os.org/
+
+______
 
 This is a template for Lingua Franca applications targeting RIOT OS on embedded boards. It is currently configured to support ARM-based boards.
 
