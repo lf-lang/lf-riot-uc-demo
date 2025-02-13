@@ -6,14 +6,20 @@ run_with_timeout() {
     shift
     local command="$@"
 
-    # Run the command with the specified timeout
+    # Run the command but disable exit on error (because timeout will cause an error)
+    set +e
     timeout "$duration" $command
 
+    # Get the exit status of the command and then re-enable exit on error (after forcing a true return value)
+    exit_status=$?
+    true
+    set -e
+
     # Check the exit status of the timeout command
-    if [ $? -eq 124 ]; then
+    if [ $exit_status -eq 124 ]; then
         echo "Command timed out (success)."
         return 0
-    elif [ $? -eq 0 ]; then
+    elif [ $exit_status -eq 0 ]; then
         echo "Command completed successfully within $duration."
         return 0
     else
@@ -23,4 +29,4 @@ run_with_timeout() {
 }
 
 make all LF_MAIN=HelloWorld BOARD=native
-run_with_timeout 10s make term
+run_with_timeout 5s make term
