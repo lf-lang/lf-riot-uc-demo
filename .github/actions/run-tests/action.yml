@@ -1,0 +1,9 @@
+name: Build and run RIOT template tests
+description: Build and run tests for the RIOT template
+runs:
+  using: "composite"
+  steps:
+    - name: Build tests
+      run: ./github/scripts/run-all.sh
+      shell: bash
+

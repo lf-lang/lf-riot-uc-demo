@@ -1,0 +1,30 @@
+name: "Platform: RIOT"
+
+on:
+  pull_request:
+
+jobs:
+  ci:
+    name: Build examples and run tests
+    runs-on: ubuntu-24.04
+    container:
+      image: riot/riotbuild:latest
+      options: --privileged
+    env:
+      RIOT_COMMIT_ID: "cb5500b4b7600d95f42a3070abae402be4f63845"
+      RIOTBASE: "/opt/riot-cb5500b4b7600d95f42a3070abae402be4f63845"
+      REACTOR_UC_PATH: ${{ github.workspace }}/reactor-uc
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Clone reactor-uc runtime
+        run: git clone https://github.com/lf-lang/reactor-uc.git
+
+      - name: Install RIOT dependencies
+        uses: ./reactor-uc/.github/actions/riot
+
+      - name: Install LFC dependencies
+        uses: ./reactor-uc/.github/actions/lingua-franca
