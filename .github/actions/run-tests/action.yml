@@ -11,6 +11,6 @@ runs:
   using: "composite"
   steps:
     - name: Build tests
-      run: ${{inputs.template-path}}./.github/scripts/run-all.sh
+      run: ${{inputs.template-path}}/.github/scripts/run-all.sh
       shell: bash
 
