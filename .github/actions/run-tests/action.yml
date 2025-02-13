@@ -4,6 +4,6 @@ runs:
   using: "composite"
   steps:
     - name: Build tests
-      run: ./.github/scripts/run-all.sh
+      run: ${{ github.action_path }}./.github/scripts/run-all.sh
       shell: bash
 
