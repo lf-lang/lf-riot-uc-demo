@@ -21,7 +21,7 @@ jobs:
           submodules: recursive
 
       - name: Clone reactor-uc runtime
-        run: git clone https://github.com/lf-lang/reactor-uc.git
+        run: git clone https://github.com/lf-lang/reactor-uc.git --recursive
 
       - name: Install RIOT dependencies
         uses: ./reactor-uc/.github/actions/riot
