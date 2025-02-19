@@ -2,9 +2,9 @@
 
 ![RIOT OS Logo](https://www.riot-os.org/assets/img/riot-logo.png)
 
-- **Git:** https://github.com/riot-os/RIOT
-- **Supported Boards:** https://www.riot-os.org/boards.html
-- **Documentation:** https://doc.riot-os.org/
+- **Git:** <https://github.com/riot-os/RIOT>
+- **Supported Boards:** <https://www.riot-os.org/boards.html>
+- **Documentation:** <https://doc.riot-os.org/>
 
 ______
 
@@ -12,16 +12,23 @@ This is a template for Lingua Franca applications targeting RIOT OS on embedded 
 
 If you have trouble, please refer to the platform-specific hints towards the end of these instructions.
 
-## 1. Basic Prerequisites
+## 1. Prerequisites
+
+### 1.1. Basic
+
+You must use one of the following operating systems:
+
+- `Linux` Officially supported are Debian & Ubuntu
+- `macOS`
 
 Your system must have the following software packages (you likely have at least some of these already):
 
- - `git` — [a distributed version control system](https://git-scm.com/)
- - `make` — Need at least version 4.0 for RIOT (see [macOS Hints](#macos-hints))
- - `java` — [Java 17](https://openjdk.org/projects/jdk/17)
- - `nix` — [a purely functional package manager](https://nix.dev/tutorials/install-nix)
+- `git` — [a distributed version control system](https://git-scm.com/)
+- `make` — Need at least version 4.0 for RIOT (see [macOS Hints](#macos-hints))
+- `java` — [Java 17](https://openjdk.org/projects/jdk/17)
+- Optional: `nix` — [a purely functional package manager](https://nix.dev/tutorials/install-nix)
 
-**Installation on Linux**
+#### Installation on Debian & Ubuntu
 
 ```bash
 sudo apt update
@@ -29,7 +36,7 @@ sudo apt install git openjdk-17-jdk openjdk-17-jre nix cmake build-essential pyt
 sudo pip install pyserial
 ```
 
-**Installation on macOS**
+#### Installation on macOS
 
 ```bash
 brew install git cmake openjdk@17 make
@@ -39,44 +46,54 @@ pip install pyserial
 
 Note that `make` will be installed as `gmake` (see [macOS Hints](#macos-hints)), so all commands below should use `gmake` instead of `make`.
 
-## 2. Micro C Target for Lingua Franca
-This template uses [reactor-uc](https://github.com/lf-lang/reactor-uc), the "micro C" target for Lingua Franca. Clone this repo with one of the following:
+### 1.2. Micro C Target for Lingua Franca
 
-```bash 
+This template uses [reactor-uc](https://github.com/lf-lang/reactor-uc), the "micro C" target for Lingua Franca. Clone this repo with one of the following commands:
+
+#### Clone via HTTPS
+
+```bash
 git clone https://github.com/lf-lang/reactor-uc.git --recurse-submodules
-# or 
+```
+
+#### Or Clone via SSH
+
+```bash
 git clone git@github.com:lf-lang/reactor-uc.git --recurse-submodules
 ```
 
-## 3. Install a cross-compiler for your board
+And make sure that the `REACTOR_UC_PATH` environment variable is pointing to it.
+
+### 1.3. Install a Cross-Compiler for your Board
 
 This README only covers arm-based boards. For boards having a CPU with different architecture, please check which cross-compilers are available for your operating system.
 
 A quick way to check if you already have an arm cross-compiler installed:
-```bash 
+
+```bash
 which arm-none-eabi-gcc
 ```
 
-## 3.1. Debian & Ubuntu
+#### Debian & Ubuntu
 
 ```bash
 sudo apt install gcc-arm-none-eabi 
 ```
 
-## 3.2. Nix
+#### Nix
 
 The template repo includes support for using the [nix](https://nix.dev) package manager to perform the installation. It is currently set to support ARM-based boards that use the `arm-none-eabi-gcc` cross-compiler.
 
 The following command creates a shell environment in which all necessary dependencies are installed.
 
-```bash 
+```bash
 nix develop
 ```
 
 This creates a new shell in which the cross-compiler is available.
 **IMPORTANT**: Don't forget to run ``nix develop`` again when you return to your project in a new shell.
 
-## 4. Create a repository using this repo as the template
+## 2. Create a Repository using this Repo as the Template
 
 On GitHub, [create a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) using [this template](https://github.com/lf-lang/lf-riot-uc-template).
 Then clone this repo onto your development machine.
@@ -88,7 +105,7 @@ The RIOT OS sources are provided as a submodule of the new repository, to fetch 
 git submodule update --init --recursive
 ```
 
-## 5. Configure the Makefile
+## 3. Configure the Makefile
 
 Your new repository has a `Makefile` in the home directory that governs the build. It is set by default to compile a very simple LF program that you can find in `src/HelloWorld.lf`.  To compile a different LF program, edit the `Makefile` to point the `LF_MAIN` to your LF program and
 set the `BOARD` variable to specify your board.  By default, these are defined in the `Makefile` as follows:
@@ -112,7 +129,7 @@ make BOARD=nucleo-f446re all
 
 See [boards supported by RIOT](https://www.riot-os.org/boards.html).
 
-## 6. Build
+## 4. Build
 
 ```bash
 make all
@@ -124,7 +141,7 @@ or with parameters to override the `Makefile configuration
 make LF_MAIN=HelloWorld BOARD=nucleo-f446re all
 ```
 
-## 7. Flash the program onto your board
+## 5. Flash the Program onto your Board
 
 ```bash
 make flash
@@ -136,7 +153,7 @@ or with parameters to override the `Makefile configuration
 make LF_MAIN=HelloWorld BOARD=nucleo-f446re flash
 ```
 
-## 8. Open a Terminal
+## 6. Open a Terminal
 
 You can open a terminal that interacts with stdin and stdout of your program as follows:
 
@@ -158,7 +175,7 @@ to
 CFLAGS += -DLF_LOG_LEVEL_ALL=LF_LOG_LEVEL_DEBUG
 ```
 
-## 9. VS Code extensions
+## 7. VS Code Extensions
 
 To edit Lingua Franca programs, it is convenient to use the [Lingua Franca extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=lf-lang.vscode-lingua-franca).
 If you do not have [the Visual Studio Code IDE](https://code.visualstudio.com/download), you can install it using one of (for Linux and macOS, respectively):
@@ -170,19 +187,18 @@ brew install --cask visual-studio-code
 
 You may also benefit from the following extensions:
 
- - `ms-vscode.cmake-tools` — [Extended CMake support in Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
- - `ms-vscode.cpptools` — [C/C++ IntelliSense, debugging, and code browsing](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
- - `marus25.cortex-debug` — [ARM Cortex-M GDB Debugger support for VSCode](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug)
+- `ms-vscode.cmake-tools` — [Extended CMake support in Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
+- `ms-vscode.cpptools` — [C/C++ IntelliSense, debugging, and code browsing](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+- `marus25.cortex-debug` — [ARM Cortex-M GDB Debugger support for VSCode](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug)
 
 To install them from the command line, run:
 
 ```bash
-$ code --install-extension lf-lang.vscode-lingua-franca --pre-release
-$ code --install-extension ms-vscode.cmake-tools
-$ code --install-extension ms-vscode.cpptools
-$ code --install-extension marus25.cortex-debug
+code --install-extension lf-lang.vscode-lingua-franca --pre-release
+code --install-extension ms-vscode.cmake-tools
+code --install-extension ms-vscode.cpptools
+code --install-extension marus25.cortex-debug
 ```
-
 
 ## macOS Hints
 
@@ -207,15 +223,13 @@ Note that `make` will be installed as `gmake`, so all commands above should use 
 To use `nix` on Linux (or WSL), make sure that your user is a member of the `nix-users` group. To check this, run:
 
 ```bash
-$ groups
+groups
 ```
 
 If `nix-users` is not listed, run:
 
 ```bash
-$ sudo usermod -aG nix-users $USER
+sudo usermod -aG nix-users $USER
 ```
 
 Please note that you might need to reboot your system after running `usermod` in order for the new group membership to be reflected.
-
-
