@@ -5,36 +5,95 @@ preamble {=
 =}
 
 reactor Accelerometer {
+  output accel_x : int16_t
+  output accel_y : int16_t
+  output accel_z : int16_t
+
   preamble {=
     #include "periph/i2c.h"
 
-    // LSM6DSL I2C Address
-    #define LSM6DSL_ADDR        0x6B
-    #define LSM6DSL_CTRL1_XL    0x10
-    #define LSM6DSL_OUTX_L_XL   0x28
+    // Datasheet: The slave address (SAD) associated to the LSM6DSV16X is 110101xb or 0x6A (default) or 0x6B
+    #define LSM6DSV16X_ADDR         0x6B // Default I2C address for LSM6DSV16X when the
+                                         // SDO/SA0 pin is connected to the supply voltage
+    #define LSM6DSV16X_OUTX_L_A     0x28 // Register for accelerometer X-axis low byte
+    #define LSM6DSV16X_CTRL1_XL     0x10 // Control register for accelerometer
+    #define LSM6DSV16X_CTRL2_XL     0x11 // Control register for gyroscope
+    #define LSM6DSV16X_WHO_AM_I     0x0F // WHO_AM_I register
+    #define LSM6DSV16X_ID           0x70 // Expected WHO_AM_I value for LSM6DSV16X
+    #define I2C_DEV_ID              I2C_DEV(0) // Use RIoT I2C device 0 by default
 
-    // I2C Configuration
-    #define I2C_DEV_ID          I2C_DEV(0) // Use I2C device 0 (modify as needed)
-    #define I2C_SPEED           I2C_SPEED_NORMAL
-  =}
-  reaction(startup) {=
-    uint8_t config[2];
-    config[0] = LSM6DSL_CTRL1_XL;  // Register address
-    config[1] = 0x60;              // ODR_XL = 1.66 kHz, FS_XL = ±2g
+    // For this application:
+    #define CTRL1_CONFIG_MODE      0x74 // Sec 9.14 of LSM6DSV16X datasheet, Normal mode, 30 Hz ODR, 2g FS
 
-    // The following acquires exclusive access to the I2C bus.
-    // It blocks until the bus is available.
-    i2c_acquire(I2C_DEV_ID);
+    // Global error string reported during run.
+    #define MAX_ERRMSG_LEN 128
+    char errormsg[MAX_ERRMSG_LEN];
 
-    if (i2c_write_reg(I2C_DEV_ID, LSM6DSL_ADDR, config[0], config[1], 0) != 0) {
-        printf("Failed to configure LSM6DSL\n");
-        i2c_release(I2C_DEV_ID);
-        exit(1); // FIXME: request_stop() is missing.
+    void init_accelerometer(void) {
+      errormsg[0] = '\0';
+      i2c_acquire(I2C_DEV_ID);
+      // Check WHO_AM_I register
+      uint8_t who_am_i;
+      if (i2c_read_regs(I2C_DEV_ID, LSM6DSV16X_ADDR, LSM6DSV16X_WHO_AM_I, &who_am_i, 1, 0) != 0) {
+        snprintf(errormsg, MAX_ERRMSG_LEN, "Error: Failed to read byte from register %X\n", LSM6DSV16X_WHO_AM_I);
+        printf("%s", errormsg);
+        return;
+      }
+      if (who_am_i != LSM6DSV16X_ID) {
+        snprintf(errormsg, MAX_ERRMSG_LEN, "Error: LSM6DSV16X not detected! Reported %X\n", who_am_i);
+        printf("%s", errormsg);
+        return;
+      }
+  
+      // Configure accelerometer (e.g., 104 Hz, 2g full scale)
+      // Refer to the LSM6DSV16X datasheet for appropriate control register values
+      // E.g., ODR_XL_[3:0] is 0b0100 for 30 Hz ODR
+      i2c_write_reg(I2C_DEV_ID, LSM6DSV16X_ADDR, LSM6DSV16X_CTRL1_XL, CTRL1_CONFIG_MODE, 0);
+
+      i2c_release(I2C_DEV_ID);
     }
+  
+    void read_accelerometer_data(int16_t *accel_x, int16_t *accel_y, int16_t *accel_z) {
+      uint8_t buffer[6];
+      i2c_acquire(I2C_DEV_ID);
+
+      // Read 6 consecutive bytes starting from OUTX_L_A
+      if (i2c_read_regs(I2C_DEV_ID, LSM6DSV16X_ADDR, LSM6DSV16X_OUTX_L_A, buffer, 6, 0) != 0) {
+          printf("Error: Failed to read accelerometer data\n");
+          i2c_release(I2C_DEV_ID);
+          return;
+      }
+  
+      // Combine high and low bytes for each axis
+      *accel_x = (int16_t)((buffer[1] << 8) | buffer[0]);
+      *accel_y = (int16_t)((buffer[3] << 8) | buffer[2]);
+      *accel_z = (int16_t)((buffer[5] << 8) | buffer[4]);
+
+      i2c_release(I2C_DEV_ID);
+    }  
   =}
 
-  reaction(shutdown) {=
-    i2c_release(I2C_DEV_ID);
+  timer t(0, 100ms)
+
+  reaction(startup) {=
+    // Initialize the I2C bus and accelerometer
+    i2c_init(I2C_DEV_ID);
+    init_accelerometer();   
+  =}
+
+  reaction(t) -> accel_x, accel_y, accel_z {=
+    int16_t x, y, z;
+
+    if (errormsg[0] != '\0') {
+      printf("%s", errormsg);
+      return;
+    }
+
+    read_accelerometer_data(&x, &y, &z);
+  
+    lf_set(accel_x, x);
+    lf_set(accel_y, y);
+    lf_set(accel_z, z);
   =}
 }
 
@@ -58,5 +117,10 @@ main reactor {
     =}
 
     a = new Accelerometer();
+
+    reaction(a.accel_x, a.accel_y, a.accel_z) {=
+      printf("Accelerometer: x=%d, y=%d, z=%d\n",
+          a.accel_x->value, a.accel_y->value, a.accel_z->value);
+    =}
 }
 

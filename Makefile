@@ -1,6 +1,9 @@
 # The name of the LF application inside "./src" to build/run/flash etc.
 LF_MAIN ?= AccelerometerDisplay
 
+# Add modules used by the LF application
+USEMODULE += periph_i2c
+
 # Enable reactor-uc features
 # CFLAGS += -DNETWORK_CHANNEL_TCP_POSIX
 # CFLAGS += -DNETWORK_CHANNEL_COAP_RIOT
