@@ -3,6 +3,8 @@ LF_MAIN ?= AccelerometerDisplay
 
 # Add modules used by the LF application
 USEMODULE += periph_i2c
+# USEMODULE += periph_spi // Collides with LED.
+USEMODULE += periph_pwm
 
 # Enable reactor-uc features
 # CFLAGS += -DNETWORK_CHANNEL_TCP_POSIX
