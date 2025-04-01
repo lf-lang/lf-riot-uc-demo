@@ -24,12 +24,14 @@ reactor DisplayX {
     */
 
     /* Function to set backlight brightness */
+    /*
     void lcd_set_backlight(uint16_t duty_cycle) {
       if (!pwm_init(PWM_DEV(0), PWM_LEFT, 1000, 8)) {
         printf("Failed to initialize PWM for backlight\n");
       }
       pwm_set(PWM_DEV(0), BL_PIN, duty_cycle);
     }
+    */
 
     void lcd_gpio_init(void) {
       gpio_init(CS_PIN, GPIO_OUT);
@@ -61,11 +63,6 @@ reactor DisplayX {
       lcd_spi_send(data);
     }
 
-    /* Function to initialize SPI */
-    void lcd_spi_init(void) {
-      spi_init(SPI_DEV_ID);
-    }
-
     void lcd_reset(void) {
       gpio_clear(RST_PIN);
       // FIXME: xtimer_usleep(10000); // 10ms delay
@@ -75,7 +72,6 @@ reactor DisplayX {
 
     void lcd_init(void) {
       lcd_gpio_init();
-      // FIXME: lcd_spi_init();
       lcd_reset();
 
       lcd_send_command(0x11); // Sleep Out
@@ -94,7 +90,7 @@ reactor DisplayX {
   =}
 
   reaction(startup) {=
-    spi_init(SPI_DEV_ID);
+    // spi_init(SPI_DEV_ID);
     self->msg = "Initialized SPI.";
 
     // FIXME: lcd_init();
