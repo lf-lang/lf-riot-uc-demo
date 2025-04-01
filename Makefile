@@ -1,10 +1,10 @@
 # The name of the LF application inside "./src" to build/run/flash etc.
-LF_MAIN ?= Display
+LF_MAIN ?= AccelerometerDisplay
 
 # Add modules used by the LF application
 USEMODULE += periph_i2c
-USEMODULE += periph_spi // Collides with LED.
-USEMODULE += periph_pwm
+# USEMODULE += periph_spi // Collides with LED.
+# USEMODULE += periph_pwm
 
 # Enable reactor-uc features
 # CFLAGS += -DNETWORK_CHANNEL_TCP_POSIX
