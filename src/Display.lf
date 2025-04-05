@@ -1,84 +1,74 @@
 target uC
 
+reactor DisplayX {
+
 preamble {=
   #include "led.h"
+  #include "lcd.h"
+//  #include "st77xx.h"
+  #include "/Users/edwardlee/git/lf-riot-uc-demo/RIOT/drivers/st77xx/include/st77xx_params.h"
+
+  lcd_t dev;
+  const lcd_driver_t *driver = &lcd_st77xx_driver;
+
+  #include "periph/gpio.h"
+  #include "periph/spi.h"
+  #include "periph/pwm.h"  // For backlight
+
+  #define SPI_DEV_ID SPI_DEV(0)   // Use SPI1  (SPI A?)
+  #define CS_PIN GPIO_PIN(PORT_A, 9)   // Chip Select
+  #define DC_PIN GPIO_PIN(PORT_A, 7)   // Data/Command  SPIA_MOSI (master out, slave in)
+  #define RST_PIN GPIO_PIN(PORT_C, 7)  // Reset ????
+  #define BL_PIN GPIO_PIN(PORT_A, 8)   // Backlight (PWM) ?????
+
+  /* Function to set backlight brightness */
+  void lcd_set_backlight(uint16_t duty_cycle) {
+    if (!pwm_init(PWM_DEV(0), PWM_LEFT, 1000, 8)) {
+      printf("Failed to initialize PWM for backlight\n");
+    }
+    // FIXME: pwm_set(PWM_DEV(0), BL_PIN, duty_cycle);
+    pwm_set(PWM_DEV(0), BL_PIN, duty_cycle);
+  }
+
+  void lcd_gpio_init(void) {
+    gpio_init(CS_PIN, GPIO_OUT);
+    gpio_init(DC_PIN, GPIO_OUT);
+    gpio_init(RST_PIN, GPIO_OUT);
+    
+    /* Default states */
+    gpio_set(CS_PIN);   // Deselect LCD
+    gpio_set(DC_PIN);   // Default to data mode
+    gpio_set(RST_PIN);  // Keep reset high
+  }
+
+  void lcd_spi_send(uint8_t data) {
+    gpio_clear(CS_PIN);  // Select LCD
+    spi_acquire(SPI_DEV_ID, CS_PIN, SPI_MODE_0, SPI_CLK_1MHZ);
+    spi_transfer_byte(SPI_DEV_ID, CS_PIN, false, data);
+    spi_release(SPI_DEV_ID);
+    gpio_set(CS_PIN);  // Deselect LCD
+  }
+
+  void lcd_send_command(uint8_t cmd) {
+    gpio_clear(DC_PIN); // Command mode
+    lcd_spi_send(cmd);
+    gpio_set(DC_PIN);   // Data mode
+  }
+
+  void lcd_send_data(uint8_t data) {
+    gpio_set(DC_PIN); // Data mode
+    lcd_spi_send(data);
+  }
+
+  void lcd_reset(void) {
+    gpio_clear(RST_PIN);
+    // FIXME: not implemented: lf_sleep(MSEC(10));
+    // FIXME: xtimer_usleep(10000); // 10ms delay
+    gpio_set(RST_PIN);
+    // FIXME: xtimer_usleep(10000);
+  }
+
 =}
-
-reactor DisplayX {
-  preamble {=
-    #include "periph/gpio.h"
-    #include "periph/spi.h"
-    #include "periph/pwm.h"  // For backlight
-
-    #define SPI_DEV_ID SPI_DEV(0)   // Use SPI1  (SPI A?)
-    #define CS_PIN GPIO_PIN(PORT_A, 9)   // Chip Select
-    #define DC_PIN GPIO_PIN(PORT_A, 7)   // Data/Command  SPIA_MOSI (master out, slave in)
-    #define RST_PIN GPIO_PIN(PORT_C, 7)  // Reset ????
-    #define BL_PIN GPIO_PIN(PORT_A, 8)   // Backlight (PWM) ?????
-
-    /* From ChatGPT:
-    #define CS_PIN GPIO_PIN(PORT_B, 6)   // Chip Select
-    #define DC_PIN GPIO_PIN(PORT_B, 10)  // Data/Command
-    #define RST_PIN GPIO_PIN(PORT_C, 7)  // Reset
-    #define BL_PIN GPIO_PIN(PORT_A, 8)   // Backlight (PWM)
-    */
-
-    /* Function to set backlight brightness */
-    /*
-    void lcd_set_backlight(uint16_t duty_cycle) {
-      if (!pwm_init(PWM_DEV(0), PWM_LEFT, 1000, 8)) {
-        printf("Failed to initialize PWM for backlight\n");
-      }
-      pwm_set(PWM_DEV(0), BL_PIN, duty_cycle);
-    }
-    */
-
-    void lcd_gpio_init(void) {
-      gpio_init(CS_PIN, GPIO_OUT);
-      gpio_init(DC_PIN, GPIO_OUT);
-      gpio_init(RST_PIN, GPIO_OUT);
-      
-      /* Default states */
-      gpio_set(CS_PIN);   // Deselect LCD
-      gpio_set(DC_PIN);   // Default to data mode
-      gpio_set(RST_PIN);  // Keep reset high
-    }
-
-    void lcd_spi_send(uint8_t data) {
-      gpio_clear(CS_PIN);  // Select LCD
-      spi_acquire(SPI_DEV_ID, CS_PIN, SPI_MODE_0, SPI_CLK_1MHZ);
-      spi_transfer_byte(SPI_DEV_ID, CS_PIN, false, data);
-      spi_release(SPI_DEV_ID);
-      gpio_set(CS_PIN);  // Deselect LCD
-    }
-
-    void lcd_send_command(uint8_t cmd) {
-      gpio_clear(DC_PIN); // Command mode
-      lcd_spi_send(cmd);
-      gpio_set(DC_PIN);   // Data mode
-    }
-
-    void lcd_send_data(uint8_t data) {
-      gpio_set(DC_PIN); // Data mode
-      lcd_spi_send(data);
-    }
-
-    void lcd_reset(void) {
-      gpio_clear(RST_PIN);
-      // FIXME: xtimer_usleep(10000); // 10ms delay
-      gpio_set(RST_PIN);
-      // FIXME: xtimer_usleep(10000);
-    }
-
-    void lcd_init(void) {
-      lcd_gpio_init();
-      lcd_reset();
-
-      lcd_send_command(0x11); // Sleep Out
-      // FIXME: xtimer_usleep(120000);
-      lcd_send_command(0x29); // Display ON
-    }
-  =}
 
   state msg : char* = {= NULL =}
 
@@ -90,11 +80,21 @@ reactor DisplayX {
   =}
 
   reaction(startup) {=
-    // spi_init(SPI_DEV_ID);
+    spi_init(SPI_DEV_ID);
     self->msg = "Initialized SPI.";
 
-    // FIXME: lcd_init();
-    // FIXME: lcd_set_backlight(128); // Set backlight to 50% brightness
+    // Initialize LCD device
+    dev.driver = driver;
+    if (lcd_init(&dev, &st77xx_params[0]) != 0) {
+      self->msg = "Failed to initialize LCD";
+      return;
+    }
+
+    lcd_set_backlight(128); // Set backlight to 50% brightness
+
+    // Draw a red rectangle in the middle of the screen
+    // Red color in RGB565 format is 0xF800
+    lcd_fill(&dev, 60, 100, 60, 100, 0xF800);
   =}
 }
 

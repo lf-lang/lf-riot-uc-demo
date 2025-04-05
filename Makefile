@@ -1,5 +1,5 @@
 # The name of the LF application inside "./src" to build/run/flash etc.
-LF_MAIN ?= Display
+LF_MAIN ?= AccelerometerDisplay
 
 # Add modules used by the LF application
 USEMODULE += periph_i2c
